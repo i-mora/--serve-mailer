@@ -13,7 +13,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [10.x, 12.x]
+        node-version: [10.x]
 
     steps:
       - uses: actions/checkout@v2
@@ -21,14 +21,14 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Login to Heroku Container registry
-        env:
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-        run: heroku container:login
       - name: Install dependencies
         run: npm i
       - name: Lint code
         run: npm run lint
+      - name: Login to Heroku Container registry
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: heroku container:login
       - name: Build and push
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}

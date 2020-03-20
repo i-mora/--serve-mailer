@@ -16,18 +16,21 @@ module.exports = app => {
   app.get(
     "/auth/google/callback",
     passport.authenticate("google"),
-    (err, req, res) => {
+    (err, req, res, next) => {
       if (err.name === "TokenError") res.redirect("/auth/google");
       //   const redirect = req.session.oauth2return || "/";
       //   delete req.session.oauth2return;
       //   res.redirect(redirect);
+      next();
     },
-    (req, res) => res.redirect("/")
+    (req, res) => {
+      res.redirect("/");
+    }
   );
 
   app.get("/api/logout", (req, res) => {
     req.logout();
-    res.send(req.user);
+    res.redirect("/");
   });
 
   app.get("/api/current_user", (req, res) => {

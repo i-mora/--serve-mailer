@@ -1,6 +1,11 @@
+const {
+  googleOAuth2ClientID,
+  googleOAuth2ClientSecret,
+  googleOAuth2CallbackURL
+} = require("../config");
+const errors = require("../utils/errors");
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
-const config = require("config");
 const mongoose = require("mongoose");
 
 const User = mongoose.model("users");
@@ -8,21 +13,25 @@ const User = mongoose.model("users");
 passport.use(
   new GoogleStrategy(
     {
-      clientID: config.get("GOOGLE_OAUTH2_CLIENT_ID"),
-      clientSecret: config.get("GOOGLE_OAUTH2_CLIENT_SECRET"),
-      callbackURL: config.get("GOOGLE_OAUTH2_CALLBACK")
+      clientID: googleOAuth2ClientID,
+      clientSecret: googleOAuth2ClientSecret,
+      callbackURL: googleOAuth2CallbackURL
     },
     (accessToken, refreshToken, profile, cb) => {
-      User.findOne({ googleId: profile.id }).then(user => {
-        if (user) cb(null, user);
-        else {
-          new User({ googleId: profile.id, name: profile.displayName })
-            .save()
-            .then(user => {
-              cb(null, user);
-            });
-        }
-      });
+      try {
+        User.findOne({ googleId: profile.id }).then(user => {
+          if (user) cb(null, user);
+          else {
+            new User({ googleId: profile.id, name: profile.displayName })
+              .save()
+              .then(user => {
+                cb(null, user);
+              });
+          }
+        });
+      } catch (err) {
+        errors(err);
+      }
     }
   )
 );
